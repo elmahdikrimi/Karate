@@ -1,0 +1,400 @@
+
+things you need before you start API testing: 
+API documentation(endpoint, client_id...) 
+Authorization and authentication 
+
+HTTP methods: GET POST PUT DELETE
+
+Types of Authentication methods : 
+Session/cookies
+Basic authentication
+OAuth
+
+API testing is more lightweight and stable than UI testing
+
+what is REST API , Representational State Transfert, set of functions 
+
+What do you verify in API testing: 
+- the accuracy of the data
+- HTTP status code
+- response time 
+- error codes incase of failure
+- non fonctional testing, performance testing and security testing
+
+Path Params and Query Params: 
+Path / Query ? ( path sont utilisés pour accéder et Query pour filtrer) 
+
+The components of an HTTP request : 
+- HTTP methods
+- Endpoint 
+- Params
+- Request Headers
+- Request Body
+
+REST api = HTTP protocol
+SOAP api = SOAP protocol 
+
+What are SOAP: 
+SOAP = Simple object access protocol, xml based protocol
+
+Payload is the data we send with the request
+
+Rest Assured : 
+is a java library for API testing automation
+All request details are defined using Given,When,Then methods
+
+
+
+
+Backlog: ensemble de taches (User Stories) définés par le product owner PO
+Scrum team: Product owner + Scrum master + Dev + BA + Tester
+avant de commercer travailler, on fait une estimation des US(leur difficulté) fibonacci
+Sprint planning, on definie les taches de sprint
+Sprint doit finir par livrer les taches une livrable
+
+réunions(cérémonies): 
+daily meeting : 3 points, 
+- tous qu'on a fait a la veille
+- tous qu'est ce que je vais travaillez aujourd'hui
+- mon blocage 
+Aprés la livraison, on fait un Sprint review(meeting) on fait une demonstration de taches de sprint
+Sprint retrospective (entre team) What went well, what could be improved
+Backlog grooming
+
+les 4 principe du SCRUM: 
+- les individus plutot que le processus et les outils
+- logiciel operationnel plutot qu'une documentation
+- collaboration avec client plutot que la negociation contractuelle
+- adaptation au changement plutot que le suivi du plan
+
+
+
+Karate DSL 
+Background: 
+Given url
+* url
+//definir une variable
+* def token
+
+Given header Authorization
+
+- Passing parameters 
+	single param: Given param limit=10
+	multiple params: Given params {limit: 10, offset: 0}
+- Assert : match
+
+* runner configuration and tags
+ -add 
+    @Karate.Test
+    Karate testTags() {
+        return Karate.run(").tags("@debug").relativeTo(getClass());
+    }
+runs all test with the tag "second"
+into the testrunner class 
+to run this, we use this mvn test -Dtest=ConduitTest#testTags in terminal ConduitTest =name of runner, testTags=method name
+TAGS: 
+
+To run a scenario with a tag @debug
+mvn test -Dkarate.options="--tags @debug"
+
+@ignore to skip a scenario
+mvn test -Dkarate.options="--tags ~@skipme" to skip a scenario 
+
+other option to execute a scenario using the classpath and codeline (ex: line 7)
+mvn test -Dkarate.options="classpath:conduitApp/feature/HomePage.feature:7"
+
+Calling another feature
+#Path starts from The Java folder/ and to pass parameters
+* def tokenResponse =  call read('classpath:Helpers/CreateToken.feature'){"email": "necro123@gmail.com","password": "necro123"}
+#where to pass the params in the feature file 
+{"email": "#(email)","password": "#(password)"}
+#accessing the variables inside the feature
+* def token = tokenResponse.authToken
+#call a feature once
+* def tokenResponse =  callonce read('classpath:Helpers/CreateToken.feature')
+
+Environmental Variables: 
+are defined in the file karate-config.js in the var=config{} object
+run from terminal with env variables:
+mvn test -Dkarate.env="dev"
+Setting global Variables in karate-config.js: 
+	-call the feature inside the karate-config.js and extract the variable inside the feature while passing the object 'config' with the env variables 
+	var accessToken = karate.callSingle('classpath:Helpers/CreateToken.feature',config).authToken
+	-Set the header Authorization karate.config()
+	karate.configure('headers',{Authorization: 'Token '+ accessToken})
+	
+- Embedded Expressions: "email":"#(signupData.email)"
+- Multiline Expressions: """ here """ 
+
+Assertions:
+and match response.tags contains
+contains ["",""]
+!contains
+contains any ["",""]
+==
+!=
+
+Iterate through the response array:
+And match response.articles[*].count contains "one"
+Wild card: finds keys in object nomatter where they are (ex: look in 'articles' and find any 'bio')
+And match reponse..bio contains "aa"
+- Iterate through all response's objects
+And match each response..following==false
+
+Fuzzy Matching: (verify the type is correct)
+and match response.articles == {"articles":"#array", "artcilesCount":500} "#[10]" test the length of array
+Verify the type of data: == "#string"
+#ignore
+- Optional, accept the type or null both good
+##string
+
+Schema Validation: 
+And match response.tags == """ jsonschema"""
+
+reading js files with functions to use in assertions 
+* def timeValidator = read("classpath:....Validator.js")
+
+Test-Data Generator
+- in a java class, we use the JavaFaker dependecy to create dummy data 
+- read a java class in Karate dsl : (use static methods to use them directly without creating a new instance of the class) 
+* def dataGenerator= Java.type('helpers.dataGenerators')
+* def emailGenerator = dataGenerator.getEmail()
+
+Data Driven Scenarios (Scenario Outline) :
+And match response.title = <title>
+
+Reading Files:
+json files => * def bodyrequest = read('classpath:....articlerequest.json')
+
+(function that returns a json object ) 
+
+* set to set a different value in an already existent variable or key in an object
+* print to print in the console
+articles.length to get the length of an array
+
+Before And After hooks
+Anything in background gets exectured before each Scenario
+callOnce read = calls the feature only once through all scenarios
+in the karate-config js, we use karate.callSingle to call a function only once
+After hooks
+* configure afterFeature = function()=>{karate.call('class...feature')} runs after each feature
+* configure afterScenario = function()=>{karate.call('class...feature')} runs after each 
+* def sleep = (pause)=>{java.lang.Thread.sleep(pause)}
+We can use a simple js function 
+* configure afterScenario = function(){console.log('name')}
+
+Parallel Execution:
+to disable parallel execution in a feature, use tag @parallel=false
+
+Given path 'articles', slug, 'favorite'
+
+Conditional Logic:
+karate.call calls a feature ,and pass and object to the feature called 
+if(favoritesCount == 0) karate.call('classpath:...feature',article)
+
+Retry/Sleep
+Retry
+* configure retry = {count:10, interval: 5000}
+the configuration retry should be placed before the "When method ..."
+And retry until reponse.articlesCount == 1
+Sleep
+* def sleep = function(pause){java.lang.Thread.sleep(pause)}
+to use it : * eval sleep(2000)
+
+Types conversion: 
+	-number to string: 10 + ""
+	-String to number: '10'*1, or use ~~parseInt('10') '#(parseInt(id))'
+
+Connect to Database: 
+use Microsoft JDBC driver
+Java class to connect to database
+* def dbHandler = Java.type('helpers.bdhandler')
+in scenario: 
+* eval dbHandler.addNewJobName('QA')
+
+#### POSTMAN ####
+const responseData= pm.response.json();
+consnt requestData = JSON.parse(pm.request.body.raw)
+pm.test('',()=>{
+})
+pm.environment.set('id',responseData.id)
+pm.collectionVariables.set('id',responseData.id)
+pm.globals.set('id',responseData.id)
+
+const id = pm.environment.get('id')
+pm.response.to.have.status(200)
+pm.expect(jsonData).to.not.have.lengthOf(0);
+
+	pm.expect(responseJson.name).to.be.a('string');
+    pm.expect(responseJson.id).to.have.lengthOf(1);
+	
+pm.expect(booking.firstname, "unexpected firstname").to.eql(pm.variables.get("firstname"));
+pm.test("Create fails", function () {
+    pm.response.to.not.have.success;
+});
+pm.response.to.have.property('Msg')
+pm.expect(id).to.eql(10)
+pm.expect(id).to.include(10)
+pm.expect(id).to.be.below(10)
+pm.response.headers.get('Content-type')
+pm.response.to.have.header('Content-type) 
+pm.expect(pm.response.responseTime).to.be.below(200);
+if(responseData.msg.includes('exist'))
+postman.setNextRequest('name')
+//use pre defined string generators
+const num = pm.variables.replaceIn({{$randomInt}})
+//Read from a csv file 
+pm.collectionVariables.set("book_name", pm.iterationData.get("BookName"))
+//Schema
+pm.reponse.to.have.jsonSchema('mySchema')
+
+Functional Validations using array functions filter and map
+--pull an object out of a response to validate it
+const cypressObject = jsonData.courses.webAutomation.filer(m => m.courseTitle === "cypress")
+pm.expect(cypressObject).to.be.an('object','not and object')
+pm.expect(cypressObject).to.have.all.keys('courseTitle','price')
+filer(m => m.courseTitle === "cypress")
+jsonData.data.forEach(function(item){
+})
+
+Mocking examples: 
+
+#SOAP webservices 
+XML based 
+Every request is a POST request 
+check if the content-type is the correct one
+Parse the xml response: xml to json
+const xmlData = xml2Json(pm.response.text())
+convert xml to json using online tools to look better 
+Traverse an xml2Json object : (using brackets instead of . )
+response["soap:Envolope"]["soap;Body"]["m:NumberToWordsResponse"]["m:NumberTwoResult"]
+Validate the presence of a string in a reponse : 
+console.log(pm.response.text().includes('text'))
+
+### Newman ###
+run collection using newman: (by passing the json file, or by collection public link)
+	- export collection as json
+	- export environments as json
+	- export globals 
+	- cmd => newman run Collection_file.json -d data.csv -e "$Env".postman_collection_envs.json -g workspace.postman_globals.json
+	-d = data
+	-e environments
+	-g globals
+	-r htmlextra newman report 
+	
+	cd \Users\emkrimi\Desktop
+	newman run Practice.postman_collection.json -e %Env%.postman_environment.json -r htmlextra
+
+	Provide Node & npm bin/ folder to PATH
+	
+Integrate Newman With Jenkins:
+
+java -jar jenkins.war -httpPort=9090
+freestyle project
+build=>execute windows batch=>add cd + "the path where the files are located" + the newman command
+Select job => build now 
+-Parameterized Jenkins Job: (to pass different environments)
+in the same job => configure => "this project is parameterized" => "add parameters"
+enter "env" as name => enter choices "UAT,QA"
+edit the command with %env%.postman_env... (env will be automatically filled with the QA or UAT)
+build with paramters => QA or UAT
+
+Fork And pull request
+When approved => merge (and delete source)
+
+Monitors: let you run a collection periodically
+
+
+always check the content-type
+inject authorization in headers in every api call if required
+Send attatchement in body POST request (in body,form-data type, key select file)
+* configure after
+* configure retry = {count:5,interval:500}
+And retry until 
+*def sleep = function(pause){java.lang.thread.sleep(pause))
+*eval sleep()
+* configure afterScenario = function(){karate.call()}
+var accesstoken = karate.callSingle('',config).auth
+karate.conigure('headers',{Authorization: 'Token '+accesstoken}
+
+And match responseHeaders['Date'] == "#notnull", "#present"
+And match each response.tags == {'id':'#number', 'name':'#string'}
+
+#Reading the csv file in the scenario outline
+
+Scenario Outline: csv 
+    * print '<BookName>'
+    * print '<Author>'
+
+Examples:
+|read('classpath:examples/data/data.csv')|
+
+Cucumber and runner from the docs : https://github.com/karatelabs/karate/tree/master/karate-demo
+
+mvn clean test "karate.options=--tags @regression classpath:some/package/someFeature.feature"
+mvn clean test "-Dkarate.options=--tags @wip" -Dtest=SomeRunner
+
+
+
+pm.sendrequest
+pm.response.to.be.success;
+
+
+https://learning.postman.com/docs/writing-scripts/script-references/test-examples/#testing-response-body
+
+
+
+Scenarion outline with csv file 
+and with basic examples: 
+
+re practice the csv pm.interationData.get('Bookname')
+
+    Scenario Outline: Retrieve data from env 
+        * print <email>
+        * print <password>
+
+        Examples: 
+        |email  |password  |
+        |(email)|(password)|
+		
+		
+		
+const jsonData = pm.response.json();
+pm.test("Test data type of the response", () => {
+  pm.expect(jsonData).to.be.an("object");
+  pm.expect(jsonData.name).to.be.a("string");
+  pm.expect(jsonData.age).to.be.a("number");
+  pm.expect(jsonData.hobbies).to.be.an("array");
+  pm.expect(jsonData.website).to.be.undefined;
+  pm.expect(jsonData.email).to.be.null;
+});
+
+pm.expect({a: 1, b: 2}).to.have.all.keys('a', 'b');
+pm.expect({a: 1}).to.have.property('a');
+pm.environment.set("obj", JSON.stringify(obj));
+
+pm.expect(pm.response.json()).to.have.ownProperty("catpath");
+// topic [answer] incase of fail
+pm.expect(pm.variables.get('answer'), 'topic [answer]').to.equal(42)
+
+
+
+http://makeseleniumeasy.com/2019/09/01/postman-tutorial-part-38-mostly-used-assertion-code-snippets-in-postman-to-achieve-api-automation/
+
+https://www.postman.com/postman/workspace/test-examples-in-postman/request/1559645-dbf8be34-a782-4fe0-96db-62abef89830f
+
+const moment = require('moment')
+const today = moment()
+console.log(today.format("DD-MM-YYYY"))
+
+
+
+
+
+    @Karate.Test
+    Karate testTags() {
+        return Karate.run().tags("@debug").relativeTo(getClass());
+    }
+
+// Variables and JSON Keys are case sensitive!
+pm.collectionVariables.set("responseA", JSON.stringify(jsonData));

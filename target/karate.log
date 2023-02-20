@@ -1,0 +1,50 @@
+17:13:59.778 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - Karate version: 1.2.0
+17:13:59.952 [com.intuit.karate.cli.Main.main()] DEBUG com.intuit.karate.Suite - [config] classpath:karate-config.js
+17:13:59.969 [com.intuit.karate.cli.Main.main()] INFO  c.intuit.karate.core.FeatureRuntime - found scenario at line: 9
+17:14:00.605 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - karate.env system property was: null 
+17:14:00.614 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - >> lock acquired, begin callSingle: classpath:examples/users/auth.feature
+17:14:01.456 [com.intuit.karate.cli.Main.main()] DEBUG com.intuit.karate - request:
+1 > POST https://simple-books-api.glitch.me/api-clients
+1 > Content-Type: application/json; charset=UTF-8
+1 > Content-Length: 76
+1 > Host: simple-books-api.glitch.me
+1 > Connection: Keep-Alive
+1 > User-Agent: Apache-HttpClient/4.5.13 (Java/11.0.16.1)
+1 > Accept-Encoding: gzip,deflate
+{"clientName":"Mr. Maurice Casper","clientEmail":"keesha.krajcik@yahoo.com"}
+
+17:14:05.809 [com.intuit.karate.cli.Main.main()] DEBUG com.intuit.karate - response time in milliseconds: 4340
+1 < 201
+1 < Date: Mon, 30 Jan 2023 16:14:05 GMT
+1 < Content-Type: application/json; charset=utf-8
+1 < Content-Length: 82
+1 < Connection: keep-alive
+1 < x-powered-by: Express
+1 < etag: W/"52-Cg1ztBotcfddcIQ/DkVjRNXJf3E"
+{"accessToken":"75db913a74c7a120423b8c4b06c9c0e7c9f9c403fba6796fd6c23fb44713dc56"}
+
+17:14:05.822 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - [print] Token was created:  75db913a74c7a120423b8c4b06c9c0e7c9f9c403fba6796fd6c23fb44713dc56 
+17:14:05.824 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - << lock released, cached callSingle: classpath:examples/users/auth.feature
+17:14:05.870 [com.intuit.karate.cli.Main.main()] DEBUG com.intuit.karate - request:
+2 > POST https://simple-books-api.glitch.me/api-clients
+2 > Authorization: Bearer 75db913a74c7a120423b8c4b06c9c0e7c9f9c403fba6796fd6c23fb44713dc56
+2 > Content-Type: application/json; charset=UTF-8
+2 > Content-Length: 73
+2 > Host: simple-books-api.glitch.me
+2 > Connection: Keep-Alive
+2 > User-Agent: Apache-HttpClient/4.5.13 (Java/11.0.16.1)
+2 > Accept-Encoding: gzip,deflate
+{"clientName":"Abdul Rodriguez","clientEmail":"weldon.leffler@yahoo.com"}
+
+17:14:06.510 [com.intuit.karate.cli.Main.main()] DEBUG com.intuit.karate - response time in milliseconds: 638
+2 < 201
+2 < Date: Mon, 30 Jan 2023 16:14:06 GMT
+2 < Content-Type: application/json; charset=utf-8
+2 < Content-Length: 82
+2 < Connection: keep-alive
+2 < x-powered-by: Express
+2 < etag: W/"52-Yb1QyBz3nLe1uq2WJb9WRBnH92U"
+{"accessToken":"47557f47474fcad9e06da2a0b529f201ed70190cfb90574e644e9b4ac1f7db46"}
+
+17:14:06.514 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate - [print] Token was created:  47557f47474fcad9e06da2a0b529f201ed70190cfb90574e644e9b4ac1f7db46 
+17:14:07.054 [com.intuit.karate.cli.Main.main()] INFO  com.intuit.karate.Suite - <<pass>> feature 1 of 1 (0 remaining) src/test/java/examples/users/auth.feature
